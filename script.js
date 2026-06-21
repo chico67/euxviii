@@ -184,7 +184,7 @@ setTimeout(() => {
     musicBtn.classList.remove('is-playing');
 
     let cinematicTimer = null;
-    let remaining = 10000; // ms left in the cinematic
+    let remaining = 36000; // ms left in the cinematic
     let segmentStart = Date.now();
 
     function pauseForRotate() {
