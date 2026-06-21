@@ -341,3 +341,60 @@ setTimeout(() => rsvpSuccess.classList.remove('is-visible'), 4500);
 });
 
 });
+
+/* ---------------------------------------------------
+    RSVP FORM — sends submissions to Google Sheet
+--------------------------------------------------- */
+const RSVP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzRheItZxEn8Ve_OOIrb-ENqc1cqmp5VbLYhSvkSyNbqBUiFbTBNWNt-yN9DDS7SX7Wdg/exec';
+
+const rsvpForm = document.getElementById('rsvpForm');
+const rsvpSuccess = document.getElementById('rsvpSuccess');
+const rsvpSubmitBtn = rsvpForm.querySelector('button[type="submit"]');
+
+rsvpForm.addEventListener('submit', (e) => {
+e.preventDefault();
+
+const payload = {
+    name: document.getElementById('rsvpName').value.trim(),
+    status: document.getElementById('rsvpStatus').value === 'attend'
+    ? 'Joyfully Accepts' : 'Regretfully Declines',
+    guests: document.getElementById('rsvpGuests').value || '1',
+    message: document.getElementById('rsvpMessage').value.trim()
+};
+
+rsvpSubmitBtn.disabled = true;
+const originalLabel = rsvpSubmitBtn.innerHTML;
+rsvpSubmitBtn.innerHTML = '<span>Sending...</span>';
+
+fetch(RSVP_ENDPOINT, {
+    method: 'POST',
+    mode: 'no-cors', // Apps Script doesn't return CORS headers; this still delivers the POST
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify(payload)
+})
+    .then(() => {
+    rsvpSuccess.textContent = 'Thank you! Your RSVP has been received. \u2713';
+    rsvpSuccess.classList.add('is-visible');
+
+    if (window.confetti) {
+        confetti({
+        particleCount: 140,
+        spread: 90,
+        colors: ['#d9b56a', '#8a5cf6', '#f4e3b3'],
+        origin: { y: 0.7 }
+        });
+    }
+
+    rsvpForm.reset();
+    })
+    .catch(() => {
+    rsvpSuccess.textContent = 'Something went wrong. Please try again or message us directly.';
+    rsvpSuccess.classList.add('is-visible');
+    })
+    .finally(() => {
+    rsvpSubmitBtn.disabled = false;
+    rsvpSubmitBtn.innerHTML = originalLabel;
+    setTimeout(() => rsvpSuccess.classList.remove('is-visible'), 5000);
+    });
+});
+
