@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Eureka Angel Abancio | A Decade &amp; Eight</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Cinzel+Decorative:wght@700;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Italianno&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="style.css">
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+
+<!-- ============ SVG SPRITE / CREST ============ -->
+<svg class="sprite" aria-hidden="true">
+<symbol id="crest" viewBox="0 0 200 200">
+<circle class="crest-ring" cx="100" cy="100" r="92" fill="none" stroke="currentColor" stroke-width="1.5"/>
+<circle class="crest-ring-inner" cx="100" cy="100" r="78" fill="none" stroke="currentColor" stroke-width="1"/>
+<g class="crest-leaves">
+    <path d="M30 110 C 45 90, 55 80, 60 60 C 50 78, 40 88, 28 98 Z" fill="currentColor" opacity="0.85"/>
+    <path d="M34 130 C 50 112, 62 100, 70 80 C 58 100, 46 112, 32 122 Z" fill="currentColor" opacity="0.7"/>
+    <path d="M170 110 C 155 90, 145 80, 140 60 C 150 78, 160 88, 172 98 Z" fill="currentColor" opacity="0.85"/>
+    <path d="M166 130 C 150 112, 138 100, 130 80 C 142 100, 154 112, 168 122 Z" fill="currentColor" opacity="0.7"/>
+</g>
+<text x="100" y="112" text-anchor="middle" class="crest-text">XVIII</text>
+<path class="crest-star" d="M100 28 L104 40 L116 42 L106 50 L109 62 L100 55 L91 62 L94 50 L84 42 L96 40 Z" fill="currentColor"/>
+</symbol>
+</svg>
+
+<!-- ============ PRELOADER ============ -->
+<div id="preloader">
+<svg class="preloader-crest" viewBox="0 0 200 200" aria-hidden="true">
+<circle cx="100" cy="100" r="92" fill="none" stroke="currentColor" stroke-width="1.2" class="draw-ring"/>
+<text x="100" y="112" text-anchor="middle" class="crest-text draw-text">XVIII</text>
+</svg>
+<p class="preloader-label">Eureka Angel Abancio</p>
+<span class="preloader-sub">A Decade &amp; Eight</span>
+</div>
+
+<!-- ============ AMBIENT LAYERS ============ -->
+<div class="ambient" aria-hidden="true">
+<div class="ambient-glow ambient-glow--a"></div>
+<div class="ambient-glow ambient-glow--b"></div>
+<div class="petals" id="petals"></div>
+</div>
+
+<!-- ============ MUSIC ============ -->
+<audio id="bgMusic" loop preload="auto">
+<source src="assets/music.mp3" type="audio/mpeg">
+</audio>
+<button id="musicBtn" class="music-btn" aria-label="Toggle music" disabled>
+<span class="music-icon">
+<span></span><span></span><span></span><span></span>
+</span>
+</button>
+
+<!-- ============ SCROLL PROGRESS ============ -->
+<div class="progress-rail" aria-hidden="true"><div class="progress-fill" id="progressFill"></div></div>
+
+<!-- ============ ENVELOPE GATE ============ -->
+<section id="gate">
+<div class="gate-frame">
+<svg class="gate-crest" viewBox="0 0 200 200" aria-hidden="true"><use href="#crest"/></svg>
+
+<div class="envelope" id="envelope">
+    <div class="envelope__glow"></div>
+    <div class="envelope__shadow"></div>
+    <div class="envelope__back">
+    <div class="envelope__pattern"></div>
+    <span class="envelope__corner envelope__corner--tl"></span>
+    <span class="envelope__corner envelope__corner--tr"></span>
+    <span class="envelope__corner envelope__corner--bl"></span>
+    <span class="envelope__corner envelope__corner--br"></span>
+    </div>
+
+    <div class="envelope__letter">
+    <div class="letter__ribbon"><i></i></div>
+    <p class="letter-eyebrow">An Invitation Awaits</p>
+    <h2 class="letter-title">Eureka Angel<br>Abancio</h2>
+    <p class="letter-text">requests the honor of your presence<br>as she celebrates her</p>
+    <p class="letter-script">A Decade &amp; Eight</p>
+    <div class="letter__flourish"></div>
+    </div>
+
+    <div class="envelope__flap">
+    <div class="envelope__flap-edge"></div>
+    <div class="seal" id="seal">
+        <span class="seal__ring"></span>
+        <div class="seal__face">
+        <svg viewBox="0 0 200 200" aria-hidden="true"><use href="#crest"/></svg>
+        <span class="seal__shine"></span>
+        </div>
+    </div>
+    </div>
+
+    <div class="sparkles" id="sparkles" aria-hidden="true"></div>
+    <div class="ambient-sparkles" id="ambientSparkles" aria-hidden="true"></div>
+</div>
+
+<p class="gate-hint">Tap the seal to open your invitation</p>
+</div>
+</section>
+
+<!-- ============ CINEMATIC INTRO ============ -->
+<section id="cinematic">
+<video id="cinematicVideo" playsinline preload="muted">
+<source src="assets/cinematic.mp4" type="video/mp4">
+</video>
+<div class="cinematic__overlay"></div>
+<div class="cinematic__frame" aria-hidden="true">
+<span class="cinematic__corner cinematic__corner--tl"></span>
+<span class="cinematic__corner cinematic__corner--tr"></span>
+<span class="cinematic__corner cinematic__corner--bl"></span>
+<span class="cinematic__corner cinematic__corner--br"></span>
+</div>
+<p class="cinematic__caption">Eureka Angel Abancio &mdash; A Decade &amp; Eight</p>
+<button id="skipCinematic" class="cinematic__skip">Skip</button>
+</section>
+
+<!-- ============ MAIN CELEBRATION ============ -->
+<main id="main">
+
+<!-- side scroll nav -->
+<nav class="side-nav" aria-label="Section navigation">
+<a href="#hero" data-label="Welcome"></a>
+<a href="#story" data-label="Her Story"></a>
+<a href="#about" data-label="About"></a>
+<a href="#celebrations" data-label="18 Celebrations"></a>
+<a href="#gallery" data-label="Gallery"></a>
+<a href="#venue" data-label="Venue"></a>
+<a href="#dresscode" data-label="Dress Code"></a>
+<a href="#giftguide" data-label="Gift Guide"></a>
+<a href="#rsvp" data-label="RSVP"></a>
+</nav>
+
+<!-- HERO -->
+<section id="hero" class="hero">
+<div class="hero__bg"></div>
+<div class="hero__overlay"></div>
+<svg class="hero__crest" viewBox="0 0 200 200" aria-hidden="true"><use href="#crest"/></svg>
+
+<div class="hero__content">
+    <p class="reveal eyebrow">You are cordially invited to the royal debut of</p>
+    <h1 class="reveal reveal--scale hero__name">Eureka Angel Abancio</h1>
+    <p class="reveal hero__tagline"><span class="script">A Decade</span> &amp; <span class="script">Eight</span></p>
+
+    <div class="reveal hero__meta">
+    <span>Saturday</span>
+    <i class="dot"></i>
+    <span>July 4, 2026</span>
+    <i class="dot"></i>
+    <span>6:00 PM</span>
+    </div>
+
+    <div class="reveal countdown" id="countdown">
+    <div class="countdown__cell"><span class="countdown__num" data-unit="days">00</span><span class="countdown__label">Days</span></div>
+    <div class="countdown__cell"><span class="countdown__num" data-unit="hours">00</span><span class="countdown__label">Hours</span></div>
+    <div class="countdown__cell"><span class="countdown__num" data-unit="mins">00</span><span class="countdown__label">Minutes</span></div>
+    <div class="countdown__cell"><span class="countdown__num" data-unit="secs">00</span><span class="countdown__label">Seconds</span></div>
+    </div>
+
+    <a href="#story" class="scroll-cue reveal" aria-label="Scroll to learn more">
+    <span></span>
+    </a>
+</div>
+</section>
+
+<!-- HER STORY -->
+<section id="story" class="section">
+<div class="section__inner section__inner--narrow">
+    <p class="kicker reveal">Her Story</p>
+    <h2 class="reveal heading">A New Chapter Begins</h2>
+    <div class="divider reveal"><span></span><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#crest"/></svg><span></span></div>
+    <p class="reveal lead">
+    Eureka Angel Abancio is stepping into adulthood with grace, strength, and purpose.
+    From a bright-eyed girl full of curiosity to a young woman of quiet confidence, every
+    milestone has led to this moment &mdash; a celebration of who she has become, and the
+    beautiful chapter that lies ahead.
+    </p>
+</div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" class="section">
+<div class="section__inner about">
+    <div class="about__media reveal reveal--left">
+    <div class="frame">
+        <img src="assets/eureka.jpg" alt="Portrait of Eureka Angel Abancio">
+    </div>
+    <span class="frame-mark">18</span>
+    </div>
+
+    <div class="about__copy reveal reveal--right">
+    <p class="kicker">About Eureka</p>
+    <h2 class="heading">Becoming Her Most<br>Elegant Self</h2>
+    <p class="lead">
+        A young woman of warmth and quiet elegance, Eureka carries her family's love and the
+        guidance of those who shaped her into this new season of life. Tonight isn't just a
+        party &mdash; it's a thank you, a tribute, and the beginning of a beautiful tomorrow.
+    </p>
+    <div class="stat-row">
+        <div class="stat"><span class="stat__num">18</span><span class="stat__label">Years of Grace</span></div>
+        <div class="stat"><span class="stat__num">04</span><span class="stat__label">July, Her Day</span></div>
+        <div class="stat"><span class="stat__num">72</span><span class="stat__label">Loved Ones Honored</span></div>
+    </div>
+    </div>
+</div>
+</section>
+
+<!-- 18 CELEBRATIONS -->
+<section id="celebrations" class="section">
+<div class="section__inner">
+    <p class="kicker reveal center">Eighteen Tributes</p>
+    <h2 class="reveal heading center">18 Celebrations</h2>
+    <div class="divider reveal"><span></span><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#crest"/></svg><span></span></div>
+    <p class="reveal lead center">Eighteen special people for each role, honoring Eureka's journey into womanhood.</p>
+
+    <div class="tabs reveal" role="tablist">
+    <button class="tab is-active" role="tab" data-target="candles">18 Candles</button>
+    <button class="tab" role="tab" data-target="roses">18 Roses</button>
+    <button class="tab" role="tab" data-target="treasures">18 Treasures</button>
+    <button class="tab" role="tab" data-target="shots">18 Shots</button>
+    <span class="tab-indicator" aria-hidden="true"></span>
+    </div>
+
+    <div class="tab-panels reveal">
+
+    <ol class="tab-panel is-active" id="candles" role="tabpanel">
+        <li>Pearly Joy Abancio</li>
+        <li>Justine Bless Casilgan</li>
+        <li>Nica Francisca Del Solor</li>
+        <li>Ciarra Oñate</li>
+        <li>Shemariah Asis</li>
+        <li>Angel Kaierl Gonzales</li>
+        <li>Princess Juliene Reyla</li>
+        <li>Amethyst Tabujara</li>
+        <li>Ansherina Vistar</li> 
+        <li>Elim Deliola</li> 
+        <li>Kimberly Lumawag</li>
+        <li>Darliz Resguardo</li>
+        <li>Daniella Flores</li>
+        <li>Devina Angel Mahilum</li>
+        <li>Ezra Catubig</li>
+        <li>Errianne Claire Batislaong</li>
+        <li>Keyliegh Villalva</li>
+        <li>Louella Borja</li>
+    </ol>
+
+    <ol class="tab-panel" id="roses" role="tabpanel">
+        <li>Andiew. Abancio</li>
+        <li>Joshua Nash Abancio</li>
+        <li>Servando Abancio</li>
+        <li>Deovan Abancio</li>
+        <li>Jhaisean Abancio</li>
+        <li>Lover Sangco</li>
+        <li>Jovan Abancio</li>
+        <li>Walter Snook</li>
+        <li>Karl Nate Santillian</li>
+        <li>Kervin Muego</li>
+        <li>Humphrey Villanueva</li>
+        <li>Alfonso Zeev Cabrera</li>
+        <li>Ramil Caporas</li>
+        <li>April John Valladolid</li>
+        <li>Rain Ardevela</li>
+        <li>Reign Delamar</li>
+        <li>Haru Uwakubo</li>
+        <li>Karl Maxim Monsale</li>
+    </ol>
+
+    <ol class="tab-panel" id="treasures" role="tabpanel">
+        <li>Pearly Joy Abancio</li>
+        <li>Andiew Abancio</li>
+        <li>Jhaby Luar</li>
+        <li>Jocelyn Tecson</li>
+        <li>Rosalinda Mahilum</li>
+        <li>Michelle Abancio</li>
+        <li>Anna Abancio</li>
+        <li>Christoper Catubig</li>
+        <li>Romer Mahilum</li>
+        <li>Christine Sangco</li>
+        <li>Olive  Borja</li>
+        <li>Christhea Garde</li>
+        <li>Venice Lloise Natividad</li>
+        <li>Rhianna Aguillar</li>
+        <li>Jorgeia tiongco</li>
+        <li>Lyra Angel</li>
+        <li>Summer Lacson</li>
+        <li>Sheena Rayne</li>
+    </ol>
+
+    <ol class="tab-panel" id="shots" role="tabpanel">
+        <li>Haru Uwakubo</li>
+        <li>Angel Kaierl Gonzales</li>
+        <li>Princess Juliene Reyla</li>
+        <li>Karl Nate Santillian</li>
+        <li>Kervin Muego</li>
+        <li>Shemariah Asis</li>
+        <li>Ansherina Vistar</li>
+        <li>April John Valladolid</li>
+        <li>Humphrey Villanueva</li>
+        <li>Ramil Cabrera Carporas</li>
+        <li>CJ Recto</li>
+        <li>Jean Jacques Arnaiz</li>
+        <li>Alfonso Zeev Cabrera</li>
+        <li>Shaina Palma</li>
+        <li>Jorgeia tiongco</li>
+        <li>Guiliana Mia Lacson</li>
+        <li>Kim Fernandez</li>
+        <li>Keyliegh Villalva</li>
+    </ol>
+
+    </div>
+</div>
+</section>
+
+<!-- GALLERY -->
+<section id="gallery" class="section">
+<div class="section__inner">
+    <p class="kicker reveal center">A Few Favorite Moments</p>
+    <h2 class="reveal heading center">Gallery</h2>
+    <div class="divider reveal"><span></span><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#crest"/></svg><span></span></div>
+
+    <div class="gallery">
+    <figure class="gallery__item reveal reveal--up" data-src="assets/img1.jpg">
+        <img src="assets/img1.jpg" alt="Eureka by the seaside at dusk" loading="lazy">
+        <figcaption></figcaption>
+    </figure>
+    <figure class="gallery__item reveal reveal--up" data-src="assets/img2.jpg">
+        <img src="assets/img2.jpg" alt="Eureka under string lights" loading="lazy">
+        <figcaption></figcaption>
+    </figure>
+    <figure class="gallery__item reveal reveal--up" data-src="assets/img3.jpg">
+        <img src="assets/img3.jpg" alt="Eureka in a white dress at night" loading="lazy">
+        <figcaption></figcaption>
+    </figure>
+    <figure class="gallery__item reveal reveal--up" data-src="assets/img4.jpg">
+        <img src="assets/img4.jpg" alt="Eureka, candid moment" loading="lazy">
+        <figcaption></figcaption>
+    </figure>
+    <figure class="gallery__item gallery__item--wide reveal reveal--up" data-src="assets/img5.jpg">
+        <img src="assets/img5.jpg" alt="Landscape memory" loading="lazy">
+        <figcaption></figcaption>
+    </figure>
+    <figure class="gallery__item gallery__item--wide reveal reveal--up" data-src="assets/img6.jpg">
+        <img src="assets/img6.jpg" alt="Landscape memory" loading="lazy">
+        <figcaption></figcaption>
+    </figure>
+    <figure class="gallery__item gallery__item--wide reveal reveal--up" data-src="assets/img7.jpg">
+        <img src="assets/img7.jpg" alt="Landscape memory" loading="lazy">
+        <figcaption></figcaption>
+    </figure>
+    <figure class="gallery__item gallery__item--wide reveal reveal--up" data-src="assets/img8.jpg">
+        <img src="assets/img8.jpg" alt="Landscape memory" loading="lazy">
+        <figcaption></figcaption>
+    </figure>
+    </div>
+</div>
+</section>
+
+<!-- VENUE -->
+<section id="venue" class="section">
+<div class="section__inner section__inner--narrow center">
+    <p class="kicker reveal">Where to Celebrate</p>
+    <h2 class="reveal heading">The Venue</h2>
+    <div class="divider reveal"><span></span><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#crest"/></svg><span></span></div>
+
+    <div class="venue-card reveal reveal--scale">
+    <svg class="venue-card__icon" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M12 22s-7-6.2-7-12a7 7 0 1 1 14 0c0 5.8-7 12-7 12Z" stroke="currentColor" stroke-width="1.4"/>
+        <circle cx="12" cy="10" r="2.6" stroke="currentColor" stroke-width="1.4"/>
+    </svg>
+    <h3>Nazareth Activity Hub</h3>
+    <p>Bangga Guanzon, Bacolod, Negros Occidental</p>
+    <p class="venue-card__time">Saturday, July 4, 2026 &bull; 6:00 PM</p>
+    <a href="https://maps.app.goo.gl/QrzL36FsipTff6LZ8" target="_blank" rel="noopener" class="btn">Open in Maps</a>
+    </div>
+</div>
+</section>
+
+<!-- DRESS CODE -->
+<section id="dresscode" class="section">
+<div class="section__inner">
+    <p class="kicker reveal center">An Evening in Royal Hues</p>
+    <h2 class="reveal heading center">Dress Code</h2>
+    <div class="divider reveal"><span></span><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#crest"/></svg><span></span></div>
+
+    <div class="dress-grid">
+
+    <!-- MEN - LEFT -->
+    <figure class="dress-card reveal reveal--left" data-src="assets/men-suit.jpg">
+        <img src="assets/men-suit.jpg" alt="Black formal suit for men" loading="lazy">
+        <figcaption>
+            <span class="dress-card__role">Gentlemen</span>
+            Black Formal Suit
+        </figcaption>
+    </figure>
+
+    <!-- WOMEN - RIGHT -->
+    <figure class="dress-card reveal reveal--right" data-src="assets/women-dress.jpg">
+        <img src="assets/women-dress.jpg" alt="Elegant purple dress for women" loading="lazy">
+        <figcaption>
+            <span class="dress-card__role">Ladies</span>
+            Elegant Purple Dress
+        </figcaption>
+    </figure>
+
+</div>
+
+    <div class="swatch-row reveal">
+    <div class="swatch-item">
+        <span class="swatch swatch--purple"></span>
+        <p>Ladies &mdash; Royal Purple</p>
+    </div>
+    <div class="swatch-item">
+        <span class="swatch swatch--black"></span>
+        <p>Gentlemen &mdash; Classic Black</p>
+    </div>
+    </div>
+</div>
+</section>
+
+<!-- GIFT GUIDE -->
+<section id="giftguide" class="section">
+<div class="section__inner">
+    <p class="kicker reveal center">Should You Wish to Give</p>
+    <h2 class="reveal heading center">Gift Guide</h2>
+    <div class="divider reveal"><span></span><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#crest"/></svg><span></span></div>
+    <p class="reveal lead center">Your presence is the greatest gift, but if you'd like to spoil her further, here are a few of her favorites.</p>
+
+    <div class="gift-grid reveal">
+    <div class="gift-item">Make Up</div>
+    <div class="gift-item">Bag</div>
+    <div class="gift-item">Plushie</div>
+    <div class="gift-item">Wallet</div>
+    <div class="gift-item">Shirts</div>
+    <div class="gift-item">Accessories</div>
+    <div class="gift-item">Blue Stuff</div>
+    </div>
+</div>
+</section>
+
+<!-- RSVP -->
+<section id="rsvp" class="section">
+<div class="section__inner section__inner--narrow center">
+    <p class="kicker reveal">Will You Join Us?</p>
+    <h2 class="reveal heading">RSVP</h2>
+    <div class="divider reveal"><span></span><svg viewBox="0 0 200 200" aria-hidden="true"><use href="#crest"/></svg><span></span></div>
+    <p class="reveal lead">Kindly let us know if you'll be celebrating with Eureka on her special night.</p>
+
+    <form id="rsvpForm" class="rsvp-form reveal reveal--scale">
+    <div class="field">
+        <input type="text" id="rsvpName" placeholder=" " required>
+        <label for="rsvpName">Full Name</label>
+    </div>
+
+    <div class="field">
+        <select id="rsvpStatus" required>
+        <option value="" disabled selected hidden></option>
+        <option value="attend">Joyfully Accepts</option>
+        <option value="decline">Regretfully Declines</option>
+        </select>
+        <label for="rsvpStatus" class="label-static">Attendance</label>
+    </div>
+
+    <div class="field"> 
+        <input type="number" id="rsvpGuests" min="1" max="10" placeholder=" ">
+        <label for="rsvpGuests">Number of Guests</label>
+    </div>
+
+    <div class="field">
+        <textarea id="rsvpMessage" rows="3" placeholder=" "></textarea>
+        <label for="rsvpMessage">Message for Eureka (optional)</label>
+    </div>
+
+    <button type="submit" class="btn btn--block">
+        <span>Send RSVP</span>
+    </button>
+
+    <p class="rsvp-success" id="rsvpSuccess">Thank you! Your RSVP has been received. &#10003;</p>
+    </form>
+</div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+<svg class="footer__crest" viewBox="0 0 200 200" aria-hidden="true"><use href="#crest"/></svg>
+<h3 class="footer__name">Eureka Angel Abancio</h3>
+<p class="footer__tagline">A Decade &amp; Eight &bull; July 4, 2026</p>
+<p class="footer__note">With heartfelt love and gratitude for sharing in this milestone.</p>
+
+<div class="footer__credit">
+    <p>Website created by <strong>Rain Ardevela</strong></p>
+    <p class="footer__inquire">For inquiries, please contact: <a href="https://www.facebook.com/rainandreardevela18?mibextid=wwXIfr&rdid=HXc31gE3warZozHF&share_url=https%3A%2F%2Fwww.facebook.com%2Fshare%2F19CvMJ55Ck%2F%3Fmibextid%3DwwXIfr#" target="_blank" rel="noopener">facebook.com/rainandreardevela18</a></p>
+</div>
+</footer>
+
+</main>
+
+<!-- LIGHTBOX -->
+<div id="lightbox" class="lightbox">
+<button class="lightbox__close" aria-label="Close image">&times;</button>
+<img id="lightboxImg" src="" alt="">
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
