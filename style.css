@@ -434,6 +434,47 @@ transition: background .3s, transform .3s;
 .cinematic__skip:hover{ background: rgba(255,255,255,.16); transform: translateY(-2px); }
 
 /* =====================================================
+ROTATE PROMPT (mobile portrait, landscape video)
+===================================================== */
+.rotate-prompt{
+position:absolute; inset:0; z-index: 20;
+display:none; flex-direction:column; align-items:center; justify-content:center;
+gap: 22px; text-align:center; padding: 0 30px;
+background: var(--ink);
+}
+
+/* show only on small-screen phones in portrait, while cinematic is active */
+@media (max-width: 760px) and (orientation: portrait){
+#cinematic.is-active .rotate-prompt{ display:flex; }
+#cinematic.is-active .rotate-prompt ~ #cinematicVideo,
+#cinematic.is-active .rotate-prompt ~ .cinematic__overlay,
+#cinematic.is-active .rotate-prompt ~ .cinematic__frame,
+#cinematic.is-active .rotate-prompt ~ .cinematic__caption,
+#cinematic.is-active .rotate-prompt ~ .cinematic__skip{
+opacity: 0; pointer-events: none;
+}
+}
+
+.rotate-prompt__icon{
+width: 86px; height:86px; color: var(--gold-soft);
+}
+.rotate-prompt__phone{
+transform-origin: 50px 50px;
+animation: rotatePhone 2.2s ease-in-out infinite;
+}
+.rotate-prompt__arrow{ opacity:.8; }
+@keyframes rotatePhone{
+0%, 15%{ transform: rotate(0deg); }
+50%, 65%{ transform: rotate(-90deg); }
+100%{ transform: rotate(-90deg); }
+}
+.rotate-prompt__text{
+margin:0; font-family: var(--font-display); font-size: 13px;
+letter-spacing: 2px; text-transform: uppercase; line-height:1.8;
+color: var(--text-dim);
+}
+
+/* =====================================================
 SIDE NAV
 ===================================================== */
 .side-nav{

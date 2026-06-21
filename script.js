@@ -94,6 +94,18 @@ const cinematic = document.getElementById('cinematic');
 const cinematicVideo = document.getElementById('cinematicVideo');
 const skipCinematic = document.getElementById('skipCinematic');
 
+function isPhonePortrait() {
+    return window.matchMedia('(max-width: 760px) and (orientation: portrait)').matches;
+}
+// idle twinkling sparkles around the envelope
+for (let i = 0; i < 18; i++) {
+const s = document.createElement('span');
+s.style.left = Math.random() * 100 + '%';
+s.style.top = Math.random() * 100 + '%';
+s.style.animationDuration = (1.8 + Math.random() * 2.4) + 's';
+s.style.animationDelay = (Math.random() * 3) + 's';
+ambientSparkles.appendChild(s);
+}
 let opened = false;
 
 function burstSparkles() {
@@ -149,6 +161,7 @@ cinematicVideo.pause();
 startCelebration();
 }
 
+
 envelope.addEventListener('click', () => {
 if (opened) return;
 opened = true;
@@ -163,49 +176,71 @@ envelope.classList.add('is-open');
 setTimeout(() => {
     gate.classList.add('is-hidden');
 
-    // play cinematic intro, then reveal the celebration
+    // play cinematic intro (with sound), then reveal the celebration
     cinematic.classList.add('is-active');
-
     cinematicVideo.currentTime = 0;
-    cinematicVideo.muted = false;
-    cinematicVideo.playsInline = true;
-    cinematicVideo.controls = false;
+    cinematicVideo.volume = 0.9;
+    music.pause();
+    musicBtn.classList.remove('is-playing');
 
-    cinematicVideo.pause
-    cinematicVideo.currentTime = 0;
+    let cinematicTimer = null;
+    let remaining = 10000; // ms left in the cinematic
+    let segmentStart = Date.now();
 
-    // force buffering before play
-    cinematicVideo.load();
-
-    cinematicVideo.setAttribute('playsinline', '');
-    cinematicVideo.play().catch(err => {
-    console.log("Video blocked:", err);
-});
-
-    const playPromise = cinematicVideo.play();
-
-    if (playPromise !== undefined) {
-        playPromise.catch(() => {
-            // fallback: try again after short delay
-            setTimeout(() => {
-                cinematicVideo.play().catch(() => {});
-            }, 300);
-        });
+    function pauseForRotate() {
+    if (cinematicTimer) {
+        clearTimeout(cinematicTimer);
+        cinematicTimer = null;
+        remaining -= (Date.now() - segmentStart);
+        if (remaining < 0) remaining = 0;
+    }
+    cinematicVideo.pause();
     }
 
-    const cinematicTimer = setTimeout(endCinematic, 39000);
+    function resumeAfterRotate() {
+    cinematicVideo.play().catch(() => {});
+    segmentStart = Date.now();
+    cinematicTimer = setTimeout(endCinematic, remaining);
+    }
+
+    function checkOrientation() {
+    if (isPhonePortrait()) {
+        pauseForRotate();
+    } else {
+        resumeAfterRotate();
+    }
+    }
+
+    // start playback (paused immediately if already in portrait)
+    cinematicVideo.play().catch(() => {
+    cinematicVideo.muted = true;
+    cinematicVideo.play().catch(() => {});
+    });
+
+    if (isPhonePortrait()) {
+    pauseForRotate();
+    } else {
+    cinematicTimer = setTimeout(endCinematic, remaining);
+    }
+
+    window.addEventListener('orientationchange', checkOrientation);
+    window.addEventListener('resize', checkOrientation);
 
     cinematicVideo.addEventListener('ended', () => {
-    clearTimeout(cinematicTimer);
+    if (cinematicTimer) clearTimeout(cinematicTimer);
+    window.removeEventListener('orientationchange', checkOrientation);
+    window.removeEventListener('resize', checkOrientation);
     endCinematic();
     }, { once: true });
 
     skipCinematic.addEventListener('click', () => {
-    clearTimeout(cinematicTimer);
+    if (cinematicTimer) clearTimeout(cinematicTimer);
+    window.removeEventListener('orientationchange', checkOrientation);
+    window.removeEventListener('resize', checkOrientation);
     endCinematic();
     }, { once: true });
 
-}, 5000);
+}, 4500);
 });
 
 // lock scroll until opened
