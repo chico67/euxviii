@@ -87,16 +87,37 @@ const gate = document.getElementById('gate');
 const envelope = document.getElementById('envelope');
 const seal = document.getElementById('seal');
 const sparkles = document.getElementById('sparkles');
+const ambientSparkles = document.getElementById('ambientSparkles');
 const main = document.getElementById('main');
 const music = document.getElementById('bgMusic');
 const musicBtn = document.getElementById('musicBtn');
 const cinematic = document.getElementById('cinematic');
 const cinematicVideo = document.getElementById('cinematicVideo');
 const skipCinematic = document.getElementById('skipCinematic');
+const unmuteNudge = document.getElementById('unmuteNudge');
 
 function isPhonePortrait() {
-    return window.matchMedia('(max-width: 760px) and (orientation: portrait)').matches;
+    const narrow = window.matchMedia('(max-width: 760px)').matches;
+    const portrait = window.matchMedia('(orientation: portrait)').matches
+        || window.innerHeight > window.innerWidth;
+    const touchDevice = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    return narrow && portrait && touchDevice;
 }
+
+function lockLandscape() {
+    if (screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock('landscape').catch(() => {
+            /* not supported (iOS Safari) — user rotates manually */
+        });
+    }
+}
+
+function unlockOrientation() {
+    if (screen.orientation && screen.orientation.unlock) {
+        try { screen.orientation.unlock(); } catch (e) { /* no-op */ }
+    }
+}
+
 // idle twinkling sparkles around the envelope
 for (let i = 0; i < 18; i++) {
 const s = document.createElement('span');
@@ -158,6 +179,8 @@ function endCinematic() {
 cinematic.classList.remove('is-active');
 cinematic.classList.add('is-hidden');
 cinematicVideo.pause();
+unmuteNudge.hidden = true;
+unlockOrientation(); // let the phone return to its natural portrait orientation
 startCelebration();
 }
 
@@ -176,12 +199,14 @@ envelope.classList.add('is-open');
 setTimeout(() => {
     gate.classList.add('is-hidden');
 
-    // play cinematic intro (with sound), then reveal the celebration
+    // play cinematic intro, then reveal the celebration
     cinematic.classList.add('is-active');
     cinematicVideo.currentTime = 0;
-    cinematicVideo.volume = 0.9;
     music.pause();
     musicBtn.classList.remove('is-playing');
+
+    // try to rotate the screen itself into landscape (Android Chrome; iOS ignores this)
+    if (isPhonePortrait()) lockLandscape();
 
     let cinematicTimer = null;
     let remaining = 36000; // ms left in the cinematic
@@ -211,10 +236,33 @@ setTimeout(() => {
     }
     }
 
-    // start playback (paused immediately if already in portrait)
-    cinematicVideo.play().catch(() => {
+    // ---- AUDIO FIX ----
+    // Mobile browsers block autoplay-with-sound unless play() fires
+    // synchronously inside the user gesture. Our cinematic starts after
+    // the tap with a delay, so we start muted (always allowed) then
+    // unmute immediately after playback begins — this keeps sound
+    // working on phones instead of silently falling back to muted-forever.
     cinematicVideo.muted = true;
+    cinematicVideo.play().then(() => {
+    cinematicVideo.muted = false;
+    cinematicVideo.volume = 0.9;
+
+    // some strict browsers re-mute it silently when unmute wasn't
+    // gesture-triggered — verify shortly after and offer a tap fallback
+    setTimeout(() => {
+        if (cinematicVideo.muted) {
+        unmuteNudge.hidden = false;
+        }
+    }, 300);
+    }).catch(() => {
+    // even muted playback failed (rare) — leave muted, video still shows
+    });
+
+    unmuteNudge.addEventListener('click', () => {
+    cinematicVideo.muted = false;
+    cinematicVideo.volume = 0.9;
     cinematicVideo.play().catch(() => {});
+    unmuteNudge.hidden = true;
     });
 
     if (isPhonePortrait()) {
@@ -225,18 +273,25 @@ setTimeout(() => {
 
     window.addEventListener('orientationchange', checkOrientation);
     window.addEventListener('resize', checkOrientation);
+    // some Android browsers fire neither event reliably mid-rotation —
+    // a short poll catches those stragglers without being wasteful
+    const orientationPoll = setInterval(checkOrientation, 500);
+
+    function cleanupOrientationListeners() {
+    window.removeEventListener('orientationchange', checkOrientation);
+    window.removeEventListener('resize', checkOrientation);
+    clearInterval(orientationPoll);
+    }
 
     cinematicVideo.addEventListener('ended', () => {
     if (cinematicTimer) clearTimeout(cinematicTimer);
-    window.removeEventListener('orientationchange', checkOrientation);
-    window.removeEventListener('resize', checkOrientation);
+    cleanupOrientationListeners();
     endCinematic();
     }, { once: true });
 
     skipCinematic.addEventListener('click', () => {
     if (cinematicTimer) clearTimeout(cinematicTimer);
-    window.removeEventListener('orientationchange', checkOrientation);
-    window.removeEventListener('resize', checkOrientation);
+    cleanupOrientationListeners();
     endCinematic();
     }, { once: true });
 
@@ -352,32 +407,6 @@ if (e.key === 'Escape') closeLightbox();
 });
 
 /* ---------------------------------------------------
-    RSVP FORM
---------------------------------------------------- */
-const rsvpForm = document.getElementById('rsvpForm');
-const rsvpSuccess = document.getElementById('rsvpSuccess');
-
-rsvpForm.addEventListener('submit', (e) => {
-e.preventDefault();
-
-rsvpSuccess.classList.add('is-visible');
-
-if (window.confetti) {
-    confetti({
-    particleCount: 140,
-    spread: 90,
-    colors: ['#d9b56a', '#8a5cf6', '#f4e3b3'],
-    origin: { y: 0.7 }
-    });
-}
-
-rsvpForm.reset();
-setTimeout(() => rsvpSuccess.classList.remove('is-visible'), 4500);
-});
-
-});
-
-/* ---------------------------------------------------
     RSVP FORM — sends submissions to Google Sheet
 --------------------------------------------------- */
 const RSVP_ENDPOINT = 'https://script.google.com/macros/s/AKfycbzRheItZxEn8Ve_OOIrb-ENqc1cqmp5VbLYhSvkSyNbqBUiFbTBNWNt-yN9DDS7SX7Wdg/exec';
@@ -433,3 +462,4 @@ fetch(RSVP_ENDPOINT, {
     });
 });
 
+});

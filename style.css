@@ -433,6 +433,21 @@ transition: background .3s, transform .3s;
 }
 .cinematic__skip:hover{ background: rgba(255,255,255,.16); transform: translateY(-2px); }
 
+.cinematic__unmute{
+  position:absolute; left: 26px; bottom: 26px;
+  display:flex; align-items:center; gap:8px;
+  font-family: var(--font-display); font-size: 11px; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--gold-soft); background: rgba(255,255,255,.1); border: 1px solid var(--panel-line);
+  border-radius: 999px; padding: 10px 18px; cursor:pointer;
+  animation: unmutePulse 1.8s ease-in-out infinite;
+}
+.cinematic__unmute svg{ width: 16px; height:16px; }
+.cinematic__unmute[hidden]{ display:none; }
+@keyframes unmutePulse{
+  0%,100%{ box-shadow: 0 0 0 0 rgba(217,181,106,.4); }
+  50%{ box-shadow: 0 0 0 8px rgba(217,181,106,0); }
+}
+
 /* =====================================================
 ROTATE PROMPT (mobile portrait, landscape video)
 ===================================================== */
